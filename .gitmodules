@@ -33,7 +33,7 @@
 	url = https://github.com/MetaHookSv/PrecacheManager
 [submodule "Plugins/Renderer"]
 	path = Plugins/Renderer
-	url = https://github.com/MetaHookSv/Renderer
+	url = https://github.com/asdian/Renderer.git
 [submodule "Plugins/ResourceReplacer"]
 	path = Plugins/ResourceReplacer
 	url = https://github.com/MetaHookSv/ResourceReplacer
