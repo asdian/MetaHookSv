@@ -1,3 +1,4 @@
+StandaloneView.dll
 VGUI2Extension.dll
 CaptionMod.dll
 Renderer.dll
@@ -11,3 +12,4 @@ SCCameraFix.dll
 HeapPatch.dll
 BetterSpray.dll
 InterpFix.dll
+CDAudioFix.dll

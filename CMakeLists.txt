@@ -101,11 +101,6 @@ option(METAHOOKSV_BUILD_PLUGINS "Build the Plugins/* components" ON)
 option(METAHOOKSV_BUILD_PLUGINLIBS "Build the PluginLibs/* components" ON)
 option(METAHOOKSV_BUILD_TOOLSRC "Build the CMake-based toolsrc/* components" ON)
 
-# Also build the BulletPhysics/Renderer AVX2 variants (installed as *_AVX2.dll) for
-# releases, so an existing AVX2-capable installation does not keep loading a stale
-# copy probed ahead of the freshly installed baseline DLL.
-option(METAHOOKSV_BUILD_AVX2 "Also build the BulletPhysics/Renderer AVX2 plugin variants" OFF)
-
 include(cmake/LaunchGame.cmake)
 
 # The compiler-free format entry point uses the same component registry.
@@ -144,71 +139,6 @@ endif()
 include(cmake/FormatValidation.cmake)
 
 # ---------------------------------------------------------------------------
-# Shared VC-LTL
-# ---------------------------------------------------------------------------
-# Every Windows component links the same VC-LTL 5.3.1 package. Resolve it once
-# here (mirroring a component's cmake/Dependencies.cmake + cmake/VCLTL.cmake),
-# place it under the repository-level thirdparty/, and expose VC_LTL_Root to
-# each component. A component's *_prepare_vcltl() then sees the verified package
-# and returns early instead of downloading its own copy.
-option(METAHOOKSV_SHARED_VCLTL "Resolve one shared VC-LTL package under thirdparty/ for all components" ON)
-
-function(metahooksv_prepare_vcltl cache_dir)
-    set(version "5.3.1")
-    set(expected_hash "7a18799ed3aa84a225610a5447a56bc534c5c98ccb8dec05caba0e3f633431ad")
-    set(vcltl_root "${cache_dir}/VC-LTL-${version}")
-    set(marker "${vcltl_root}/.verified-sha256")
-    file(MAKE_DIRECTORY "${cache_dir}")
-    # Debug and Release configurations share the package cache.
-    file(LOCK "${cache_dir}/VC-LTL.lock" GUARD FUNCTION TIMEOUT 300)
-    if(EXISTS "${marker}" AND EXISTS "${vcltl_root}/VC-LTL helper for cmake.cmake"
-        AND EXISTS "${vcltl_root}/TargetPlatform/6.0.6000.0/lib/Win32/libucrt.lib")
-        file(READ "${marker}" verified_hash)
-        string(STRIP "${verified_hash}" verified_hash)
-        if(verified_hash STREQUAL expected_hash)
-            message(STATUS "Shared VC-LTL ${version} is ready: ${vcltl_root}")
-            set(METAHOOKSV_VC_LTL_ROOT "${vcltl_root}" PARENT_SCOPE)
-            return()
-        endif()
-    endif()
-
-    set(archive "${cache_dir}/VC-LTL-${version}.7z")
-    if(EXISTS "${archive}")
-        file(SHA256 "${archive}" actual_hash)
-        if(NOT actual_hash STREQUAL expected_hash)
-            message(FATAL_ERROR "VC-LTL archive failed SHA-256 verification: ${archive}. Remove it and configure again.")
-        endif()
-    else()
-        message(STATUS "Downloading shared VC-LTL ${version}...")
-        set(download "${archive}.download")
-        file(DOWNLOAD
-            "https://github.com/Chuyu-Team/VC-LTL5/releases/download/v${version}/VC-LTL-Binary.7z"
-            "${download}" EXPECTED_HASH "SHA256=${expected_hash}"
-            TLS_VERIFY ON STATUS status SHOW_PROGRESS TIMEOUT 300 INACTIVITY_TIMEOUT 60)
-        list(GET status 0 result)
-        if(NOT result EQUAL 0)
-            message(FATAL_ERROR "VC-LTL download failed: ${status}")
-        endif()
-        file(RENAME "${download}" "${archive}")
-    endif()
-    file(MAKE_DIRECTORY "${vcltl_root}")
-    file(ARCHIVE_EXTRACT INPUT "${archive}" DESTINATION "${vcltl_root}")
-    if(NOT EXISTS "${vcltl_root}/VC-LTL helper for cmake.cmake"
-        OR NOT EXISTS "${vcltl_root}/TargetPlatform/6.0.6000.0/lib/Win32/libucrt.lib")
-        message(FATAL_ERROR "VC-LTL extraction is incomplete: ${vcltl_root}")
-    endif()
-    file(WRITE "${marker}" "${expected_hash}\n")
-    message(STATUS "Shared VC-LTL ${version} prepared: ${vcltl_root}")
-    set(METAHOOKSV_VC_LTL_ROOT "${vcltl_root}" PARENT_SCOPE)
-endfunction()
-
-if(METAHOOKSV_SHARED_VCLTL)
-    metahooksv_prepare_vcltl("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty")
-    # Components only provide a default for VC_LTL_Root, so this entry wins.
-    set(VC_LTL_Root "${METAHOOKSV_VC_LTL_ROOT}" CACHE PATH "VC-LTL binary package root" FORCE)
-endif()
-
-# ---------------------------------------------------------------------------
 # Dependency injection: map a component's external dependency variable to the
 # aggregated sibling submodule path.
 # ---------------------------------------------------------------------------
@@ -226,14 +156,14 @@ function(metahooksv_dependency_path dep_var out_var)
     elseif(dep_var STREQUAL "SCOPEEXIT_SOURCE_PATH")
         set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/ScopeExit")
     elseif(dep_var STREQUAL "FREEIMAGE_SOURCE_PATH")
-        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/FreeImage_clone")
+        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/FreeImage")
     elseif(dep_var STREQUAL "MILE_FFMPEG_ROOT")
         include("${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Renderer/cmake/MileFFmpeg.cmake")
         renderer_prepare_mile_ffmpeg(_path)
     elseif(dep_var STREQUAL "LIBXML2_SOURCE_PATH")
         set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libxml2")
     elseif(dep_var STREQUAL "GLEW_SOURCE_PATH")
-        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew_fork")
+        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew")
     elseif(dep_var STREQUAL "STEAMAPIBRIDGE_SOURCE_PATH")
         set(_path "${CMAKE_CURRENT_SOURCE_DIR}/PluginLibs/SteamAPIBridge")
     elseif(dep_var STREQUAL "STEAMSDK_SOURCE_PATH")
@@ -260,9 +190,9 @@ function(metahooksv_dependency_path dep_var out_var)
     elseif(dep_var STREQUAL "SDL2_INCLUDE_DIRS")
         # SDL consumers read the public headers straight from MetaHook's SDL
         # submodules; they exist at configure time, unlike the installed copies.
-        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/MetaHook/thirdparty/sdl2-compat-fork/include")
+        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/MetaHook/thirdparty/sdl2-compat/include")
     elseif(dep_var STREQUAL "SDL3_INCLUDE_DIRS")
-        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/MetaHook/thirdparty/SDL3_fork/include")
+        set(_path "${CMAKE_CURRENT_SOURCE_DIR}/MetaHook/thirdparty/SDL3/include")
     else()
         message(FATAL_ERROR "Unknown injected dependency variable: ${dep_var}")
     endif()
@@ -288,17 +218,6 @@ function(metahooksv_add_component _component_path _component_deps
             set(${_dep} "${_dep_path}")
         endforeach()
     endif()
-    # Forward the AVX2 variant switches as normal variables of this per-component
-    # scope: they reach that component's directory without touching the cache, so
-    # only the intended components build the extra targets.
-    if(METAHOOKSV_BUILD_AVX2)
-        if(_component_path STREQUAL "Plugins/BulletPhysics")
-            set(BULLETPHYSICS_BUILD_AVX2 ON)
-        elseif(_component_path STREQUAL "Plugins/Renderer")
-            set(RENDERER_BUILD_AVX2 ON)
-        endif()
-    endif()
-
     set(_component_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/${_component_path}")
     add_subdirectory("${_component_source_dir}"
         "${CMAKE_CURRENT_BINARY_DIR}/${_component_path}")
@@ -388,8 +307,8 @@ foreach(_def IN LISTS METAHOOKSV_COMPONENT_DEFS)
     get_filename_component(_name "${_path}" NAME)
     message(STATUS "Enabling ${_path} (target '${_name}')")
     # Each group maps to one IDE filter. Plugins and PluginLibs add a
-    # per-component subfilter so their targets, tests and *_AVX2 variants are
-    # grouped by component instead of piling up at the group root.
+    # per-component subfilter so their targets and tests are grouped by
+    # component instead of piling up at the group root.
     if(_group STREQUAL "metahook")
         set(_component_group_folder "MetaHookCore")
         set(_component_folder "MetaHookCore")

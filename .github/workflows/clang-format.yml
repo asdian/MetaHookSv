@@ -28,6 +28,7 @@ jobs:
             Plugins/BetterSpray \
             Plugins/BulletPhysics \
             Plugins/CaptionMod \
+            Plugins/CDAudioFix \
             Plugins/HeapPatch \
             Plugins/InterpFix \
             Plugins/PrecacheManager \
@@ -35,8 +36,10 @@ jobs:
             Plugins/ResourceReplacer \
             Plugins/SCCameraFix \
             Plugins/SCModelDownloader \
+            Plugins/StandaloneView \
             Plugins/SteamScreenshots \
             Plugins/StudioEvents \
+            Plugins/SvenSoundcacheControl \
             Plugins/ThreadGuard \
             Plugins/VGUI2Extension \
             PluginLibs/SteamAPIBridge \

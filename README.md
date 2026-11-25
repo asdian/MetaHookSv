@@ -64,7 +64,7 @@ A: try `r_lightmap 1`.
 
 ## One Click Installation (GUI Installer)
 
-1. Download the release and extract the complete archive.
+1. Download the [MetaHookSv-windows-x86.7z](https://github.com/MetaHookSv/MetaHookSv/releases) and extract the complete archive.
 2. Keep `MetahookInstaller.exe` and `install/output/` together. Run the installer, select the game, then click **Install**.
 3. Launch Sven Co-op from Steam or the generated shortcut. Other games use the generated `MetaHook for [GameName].lnk`.
 
@@ -80,13 +80,19 @@ See [MetahookInstaller](https://github.com/MetaHookSv/MetahookInstaller) for all
 
 ## Manual Installation
 
-1. Download the release and extract the complete archive.
+1. Download the [MetaHookSv-windows-x86.7z](https://github.com/MetaHookSv/MetaHookSv/releases) and extract the complete archive.
 
 2. For Sven Co-op, merge `svencoop/`, its sibling resource directories and `platform/` into the game root. For other mods, merge the common `svencoop/` resources into the selected mod directory and add its matching resource directories.
 
 Copy the `MetaHook.exe` / `MetaHook_blob.dll` (depending on your engine type) into the game root. Rename the normal launcher to `svencoop.exe` for Sven Co-op; other games use `MetaHook.exe -insecure -game <mod-directory>`. Legacy blob engines use `MetaHook_blob.exe`.
 
 In the mod's `metahook/configs/`, copy `plugins_svencoop.lst` for Sven Co-op or `plugins_goldsrc.lst` for other games to `plugins.lst`, unless a user list already exists. BetterSpray is enabled by default for Sven Co-op.
+
+SvenSoundcacheControl is included as an optional Sven Co-op plugin. Add
+`SvenSoundcacheControl.dll` to `plugins.lst` to refresh sound lists on every join,
+including same-map reconnects (`cl_soundcache_alwaysflush 1`, or `0` for original
+behavior). Keep its `gamedata/svensoundcachecontrol` directory with the DLL.
+See [SvenSoundcacheControl](https://github.com/MetaHookSv/SvenSoundcacheControl).
 
 For a non-blob engine that imports SDL2, copy both `SDL2.dll` and `SDL3.dll` into the game toot, to enable IME candidate support. The GUI installer checks this condition automatically.
 
@@ -260,6 +266,18 @@ The updated spectator-view code credits to [halflife-updated](https://github.com
 BetterSpray is a plugin for MetaHookSV that enhances Sven Co-op and GoldSrc’s spray system with support for high-res images, dynamic reloading and cloud sharing.
 
 [Link](https://github.com/MetaHookSv/BetterSpray)
+
+### StandaloneView
+
+This plugin lets other plugins render additional 3D views, such as a model preview in a menu, through the engine's own `V_RenderView`, with or without the Renderer plugin and without depending on it.
+
+[Link](https://github.com/MetaHookSv/StandaloneView)
+
+### CDAudioFix
+
+This plugin fixes MP3 music that plays too quietly after an interrupted fade-out, for example when the next Career round starts while the `MatchWin` music is still fading. If a track ends during `cd fadeout`, the engine keeps the faded volume for the next `mp3 play`. The plugin restores `MP3Volume` on each new MP3 stream before playback starts.
+
+[Link](https://github.com/MetaHookSv/CDAudioFix)
 
 ### HUDColor
 

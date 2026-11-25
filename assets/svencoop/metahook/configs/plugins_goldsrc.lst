@@ -1,3 +1,4 @@
+StandaloneView.dll
 VGUI2Extension.dll
 CaptionMod.dll
 Renderer.dll
@@ -8,3 +9,4 @@ ThreadGuard.dll
 HeapPatch.dll
 ResourceReplacer.dll
 InterpFix.dll
+CDAudioFix.dll

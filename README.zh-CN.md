@@ -64,7 +64,7 @@ A. 请设置 `r_lightmap 1`
 
 ## 一键安装方式
 
-1. 下载 release 并完整解压。
+1. 下载 [MetaHookSv-windows-x86.7z](https://github.com/MetaHookSv/MetaHookSv/releases) 并完整解压。
 2. 保持 `MetahookInstaller.exe` 与 `install/output/` 在一起。运行安装器，选择游戏后点击 **安装**。
 3. Sven Co-op 从 Steam 或生成的快捷方式启动；其他游戏使用生成的 `MetaHook for [GameName].lnk`。
 
@@ -80,11 +80,19 @@ A. 请设置 `r_lightmap 1`
 
 ## 手动安装方式
 
-运行文件位于 `install/output/`。安装到 Sven Co-op 时，将 `svencoop/`、其配套资源目录和 `platform/` 合入游戏根目录。其他 Mod 应将通用 `svencoop/` 资源合入所选 Mod 目录，再复制该 Mod 的配套目录。
+1. 下载 [MetaHookSv-windows-x86.7z](https://github.com/MetaHookSv/MetaHookSv/releases) 并完整解压。
 
-将所需启动器、`libcurl.dll` 和 `steam_api.dll` 复制到游戏根目录。Sven Co-op 将普通启动器重命名为 `svencoop.exe`；其他游戏使用 `MetaHook.exe -insecure -game <Mod目录>` 启动。旧版 blob 引擎使用 `MetaHook_blob.exe`。
+2. 运行文件位于 `install/output/`。安装到 Sven Co-op 时，将 `svencoop/`、其配套资源目录和 `platform/` 合入游戏根目录。其他 Mod 应将通用 `svencoop/` 资源合入所选 Mod 目录，再复制该 Mod 的配套目录。
 
-在 Mod 的 `metahook/configs/` 下，将 Sven Co-op 的 `plugins_svencoop.lst` 或其他游戏的 `plugins_goldsrc.lst` 复制为 `plugins.lst`。已有用户列表时保留原文件。Sven Co-op 默认启用 BetterSpray。
+3. 将所需启动器、`libcurl.dll` 和 `steam_api.dll` 复制到游戏根目录。Sven Co-op 将普通启动器重命名为 `svencoop.exe`；其他游戏使用 `MetaHook.exe -insecure -game <Mod目录>` 启动。旧版 blob 引擎使用 `MetaHook_blob.exe`。
+
+4. 在 Mod 的 `metahook/configs/` 下，将 Sven Co-op 的 `plugins_svencoop.lst` 或其他游戏的 `plugins_goldsrc.lst` 复制为 `plugins.lst`。已有用户列表时保留原文件。Sven Co-op 默认启用 BetterSpray。
+
+SvenSoundcacheControl 随包提供，需在 `plugins.lst` 中加入
+`SvenSoundcacheControl.dll` 才会启用。`cl_soundcache_alwaysflush 1` 在每次入服时
+刷新声音列表，包括同图重连；设为 `0` 恢复原版行为。请保留配套的
+`gamedata/svensoundcachecontrol` 目录。详见
+[SvenSoundcacheControl](https://github.com/MetaHookSv/SvenSoundcacheControl)。
 
 普通引擎导入 SDL2 时，应同时安装 `install/output/SDL2.dll` 和 `SDL3.dll`，以支持输入法候选词。GUI 安装器会自动判断此条件。
 
@@ -244,6 +252,18 @@ VGUI2Extension 是一个 VGUI2 的 modding 框架，为其他插件提供对 VGU
 为 Sven Co-op 和 GoldSrc 的喷漆系统提供高分辨率图像、动态重载和云分享支持。
 
 [链接](https://github.com/MetaHookSv/BetterSpray)
+
+### StandaloneView
+
+该插件让其他插件通过引擎自身的 `V_RenderView` 渲染额外的 3D 视图（例如菜单中的模型预览），装不装 Renderer 插件都能工作，也不依赖 Renderer。
+
+[链接](https://github.com/MetaHookSv/StandaloneView)
+
+### CDAudioFix
+
+该插件修复音乐淡出被打断后 MP3 音乐音量变小的问题，例如 Career 中 `MatchWin` 音乐尚未淡出完毕就进入了下一局。若曲目在 `cd fadeout` 期间播放结束，引擎会把淡出后的音量带到下一次 `mp3 play`；插件会在每个新 MP3 流开始播放前恢复为 `MP3Volume`。
+
+[链接](https://github.com/MetaHookSv/CDAudioFix)
 
 ### HUDColor
 

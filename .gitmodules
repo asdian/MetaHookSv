@@ -1,12 +1,12 @@
-[submodule "thirdparty/glew_fork"]
-	path = thirdparty/glew_fork
+[submodule "thirdparty/glew"]
+	path = thirdparty/glew
 	url = https://github.com/hzqst/glew-cmake
 [submodule "thirdparty/ScopeExit"]
 	path = thirdparty/ScopeExit
 	url = https://github.com/SergiusTheBest/ScopeExit
-[submodule "thirdparty/FreeImage_clone"]
-	path = thirdparty/FreeImage_clone
-	url = https://github.com/hzqst/FreeImage_clone
+[submodule "thirdparty/FreeImage"]
+	path = thirdparty/FreeImage
+	url = https://github.com/hzqst/FreeImage
 [submodule "PluginLibs/UtilAssetsIntegrity"]
 	path = PluginLibs/UtilAssetsIntegrity
 	url = https://github.com/MetaHookSv/UtilAssetsIntegrity
@@ -101,3 +101,15 @@
 [submodule "thirdparty/FormatValidation"]
 	path = thirdparty/FormatValidation
 	url = https://github.com/MetaHookSv/FormatValidation.git
+[submodule "Plugins/StandaloneView"]
+	path = Plugins/StandaloneView
+	url = https://github.com/MetaHookSv/StandaloneView.git
+	branch = main
+[submodule "Plugins/CDAudioFix"]
+	path = Plugins/CDAudioFix
+	url = https://github.com/MetaHookSv/CDAudioFix.git
+	branch = main
+[submodule "Plugins/SvenSoundcacheControl"]
+	path = Plugins/SvenSoundcacheControl
+	url = https://github.com/MetaHookSv/SvenSoundcacheControl
+	branch = main
